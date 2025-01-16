@@ -1,0 +1,62 @@
+﻿@page "/"
+@using AICodeReview.Web.Model
+
+<PageTitle>提交记录</PageTitle>
+
+@inject ServiceApiClient Api
+
+
+@if (list == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>提交日志</th>
+                <th>提交人</th>
+                <th>昵称</th>
+                <th>提交日期</th>
+                <th>状态</th>
+                <th>邮箱</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in list)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Message</td>
+                    <td>@item.AuthorName</td>
+                    <td>@item.CommitName</td>
+                    <td>@item.CommitDate</td>
+                    <td>@item.Status</td>
+                    <td>@item.CommitEmail</td>
+                    <td>
+                        <a href="@($"/details?id={item.Id}")">查看结果</a> 
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<CodeReviewList> list;
+
+    protected override async Task OnInitializedAsync()
+    {
+        list = await Api.GetCodeReviewListAsync(1);
+    }
+
+    [JSInvokable]
+    public async Task LoadMoreCommits(int page)
+    {
+        list.AddRange(await Api.GetCodeReviewListAsync(page));
+    }
+
+}
